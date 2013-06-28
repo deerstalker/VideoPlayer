@@ -25,14 +25,15 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 public class MainActivity extends ListActivity implements
-		OnAudioFocusChangeListener{
+		OnAudioFocusChangeListener {
 	private MediaPlayer myMediaPlayer;
 	private static final String TAG = "MusicActivity";
 	private List<String> myMusicList = new ArrayList<String>();
 	private int currentListItem = 0;
 
-	private String remoteMusicURI = "http://dc220.4shared.com/img/302542695/d0964170/" +
-			"dlink__2Fdownload_2FxdlEtbxq_3Ftsid_3D20101119-54721-4807ddd0/preview.mp3";
+	private String remoteMusicURI = "http://players.edgesuite.net/" +
+			"videos/big_buck_bunny/bbb_448x252.mp4";
+
 	// some variables
 
 	/** Called when the activity is first created. */
@@ -41,7 +42,7 @@ public class MainActivity extends ListActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		myMediaPlayer = new MediaPlayer();
-		
+
 		findView();
 		musicList();
 		listener();
@@ -51,51 +52,24 @@ public class MainActivity extends ListActivity implements
 	 * use Asynchronous preparation
 	 */
 	void prepareMusicAsynchronous() {
-	
-		AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-		int result = audioManager.requestAudioFocus(this,
-				AudioManager.STREAM_MUSIC,
-				AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
-
-		if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-			// could not get audio focus.
-			Toast.makeText(this, "cannot get audio focus!", 2);
-		}
-		if(myMediaPlayer != null){
-			myMediaPlayer.reset();
+		VideoView videoView = ViewHolder.videoWindow;
+		if(videoView.isPlaying()){
+			videoView.stopPlayback();
 		}
 		try {
-			try {
-				myMediaPlayer.setDataSource(remoteMusicURI);
-				myMediaPlayer.prepareAsync();
 			
-			} catch (IllegalStateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			videoView.setVideoURI(Uri.parse(remoteMusicURI));
 
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		myMediaPlayer.setOnPreparedListener(new OnPreparedListener() {
+		videoView.setOnPreparedListener(new OnPreparedListener() {
 
 			@Override
 			public void onPrepared(MediaPlayer asyncMediaPlayer) {
 				// TODO Auto-generated method stub
-				myMediaPlayer.start();
-				myMediaPlayer
-				.setOnCompletionListener(new OnCompletionListener() {
-
-					@Override
-					public void onCompletion(MediaPlayer mp) {
-						// TODO Auto-generated method stub
-						nextMusic();
-					}
-				});
+				asyncMediaPlayer.start();
 			}
 		});
 
@@ -106,11 +80,11 @@ public class MainActivity extends ListActivity implements
 	 */
 
 	void musicList() {
-		myMusicList.add("LocalMusic");
-		myMusicList.add("RemoteMusic");
+		myMusicList.add("LocalVideo");
+		myMusicList.add("RemoteVideo");
 		ArrayAdapter<String> musicList = new ArrayAdapter<String>(
 				MainActivity.this, R.layout.musicitme, myMusicList);
-		
+
 		setListAdapter(musicList);
 	}
 
@@ -122,7 +96,6 @@ public class MainActivity extends ListActivity implements
 		ViewHolder.last = (Button) findViewById(R.id.last);
 		ViewHolder.videoWindow = (VideoView) findViewById(R.id.videoWindow);
 	}
-	
 
 	void listener() {
 		// ֹͣ
@@ -189,35 +162,13 @@ public class MainActivity extends ListActivity implements
 		}
 		if (currentListItem == 1) {
 			prepareMusicAsynchronous();
-		}
-		else if(currentListItem == 0){
-//			if(myMediaPlayer != null){
-//				myMediaPlayer.release();
-//			}
-//			Log.d(TAG, "before create!");
-//			
-//			myMediaPlayer = MediaPlayer.create(this, R.raw.butterfly);
-//			myMediaPlayer.start();
-//			Log.d(TAG, "after start!");
-//			myMediaPlayer
-//			.setOnCompletionListener(new OnCompletionListener() {
-//
-//				@Override
-//				public void onCompletion(MediaPlayer mp) {
-//					// TODO Auto-generated method stub
-//					nextMusic();
-//				}
-//			});
+		} else if (currentListItem == 0) {
 			MediaController controller = new MediaController(this);
 			ViewHolder.videoWindow.setMediaController(controller);
-			Log.d(TAG, "before setvideouri");
-			Log.d(TAG, getPackageName());
-			ViewHolder.videoWindow.setVideoURI(Uri.parse("android.resource://"+getPackageName()+"/raw/butterfly"));
-			Log.d(TAG, "after setvideouri");
+			ViewHolder.videoWindow.setVideoURI(Uri.parse("android.resource://"
+					+ getPackageName() + "/raw/butterfly"));
 			ViewHolder.videoWindow.requestFocus();
-			Log.d(TAG, "after requestFocus!");
 			ViewHolder.videoWindow.start();
-			Log.d(TAG, "after start!");
 		}
 	}
 
@@ -255,10 +206,9 @@ public class MainActivity extends ListActivity implements
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		// TODO Auto-generated method stub
 		currentListItem = position;
-		Log.d(TAG, ""+currentListItem);
+		Log.d(TAG, "" + currentListItem);
 		playMusic(position);
 	}
-	
 
 	@Override
 	public void onAudioFocusChange(int focusChange) {
