@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">VideoPlayer</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello">Hello world!</string>
+    <string name="playLocal">Play movie Local</string>
+    <string name="playRemote">Play movie remote</string>
+
+</resources>
